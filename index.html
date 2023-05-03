@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tus TEST</title>
+    <style>
+        body {
+            height: 100%;
+            background: hsla(41, 100%, 70%, 1);
+            background: linear-gradient(90deg, hsla(41, 100%, 70%, 1) 0%, hsla(7, 76%, 47%, 1) 100%);
+            background: -moz-linear-gradient(90deg, hsla(41, 100%, 70%, 1) 0%, hsla(7, 76%, 47%, 1) 100%);
+            background: -webkit-linear-gradient(90deg, hsla(41, 100%, 70%, 1) 0%, hsla(7, 76%, 47%, 1) 100%);
+            filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#FFCF67", endColorstr="#D3321D", GradientType=1);
+        }
+
+        .wrapper {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+        .btn {
+            width: 150px;
+            height: 80px;
+            border: none;
+            background-color: #e9e3b4;
+            font-size: 16px;
+            color: #381d2a;
+            cursor: pointer;
+            transition: all 1s;
+            margin-bottom: 16px;
+        }
+
+        .btn:hover {
+            background-color: #f39b6d;
+            color: #381d2a;
+        }
+    </style>
+    <script src="./tus.min.js"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <button class="btn" onclick="onButtonClicked()">Select images</button>
+        <div id="content"></div>
+    </div>
+    <script>
+        // Content wrapper element
+        let contentElement = document.getElementById("content");
+
+        // test environment from tus url
+        const testUrl = 'http://tusd.tusdemo.net/files/'
+        
+        //webDavPath
+        const spaceId = '/spaces/1284d238-aa92-42ce-bdc4-0b0000009157$some-admin-user-id-0000-000000000000'
+        //owncloud docker env + webdavPath
+        const endpointUrl = 'https://host.docker.internal:9200' + spaceId
+
+        function sendTus(fileBlob) {
+
+
+            const upload = new tus.Upload(fileBlob, {
+                // Endpoint is the upload creation URL from your tus server
+                endpoint: endpointUrl,
+                // uploadUrl: endpointUrl,
+                headers: {
+                    // 'Location': 'http://localhost:8000/',
+                    'Authorization': 'Bearer eyJhbGciOiJQUzI1NiIsImtpZCI6InByaXZhdGUta2V5IiwidHlwIjoiSldUIn0.eyJhdWQiOiJ3ZWIiLCJleHAiOjE2ODMwNTg1MzYsImlhdCI6MTY4MzA1ODIzNiwiaXNzIjoiaHR0cHM6Ly9ob3N0LmRvY2tlci5pbnRlcm5hbDo5MjAwIiwianRpIjoicGphVGFZWjlqMjBWV2NpYTl6dTBDVF9YbW83ZW1FV3QiLCJsZy5pIjp7ImRuIjoiQWRtaW4iLCJpZCI6InVpZD1hZG1pbixvdT11c2VycyxvPWxpYnJlZ3JhcGgtaWRtIiwidW4iOiJhZG1pbiJ9LCJsZy5wIjoiaWRlbnRpZmllci1sZGFwIiwibGcudCI6IjEiLCJzY3AiOiJwcm9maWxlIGVtYWlsIG9wZW5pZCIsInN1YiI6InZuMDQ3WURFb0pkYkZIUTdAeDBvOEFqZ2VCOHZhRUs4TTVyRDFuSVIzNTlhVVZLUlhzWThMU1NPQ3pWXzhySndST2lmUVFBbjlQeEJ4Z29tSmxtUE5FUSJ9.L_IN5UTnhPfFWi7Q2acSDsSbjpKFam3JrsecGM1xhhynOdIJ4ZB5-flzBTKbpa1Q1Mq8nyyaY1nbVSKABce5ucHzoaR74CYNspN99MJKAf7UaDHPTJnOLoHXdke6Ecex6TMNNeWLsx7jQcBpIqxsIitxfmNHep-VWTJk7QTctOW101Z-vKnjCPKu82YiydrtXRWbu7ydHg-FcSc54ARknlznBdeTY0QPRjOfBbUO66oA8hRaySBeZHaT8X0Uq1XJeZ1B3qdlEHhqI6qKKY5jFPRFAakKdGnhkISl_bYxaHJi9tGejXepF496ZsQLyX9VoaC5WwhA4RvsMoU6rNZl5nrMuzochPgTKTpbs0_nf_00AthlXe9GDK4Xj6NttNc5FzvDQOt0JRSU2spfU4mwjf155CudAnYbz3uMLpmanlyc_3Go2yerLnizoNZuu6zqCHmumG_bnDML08yc0d6DrvVj2OlFeIPX43dpGmLDVbBxgsVvTAYoT83mH_pVluC7OGkkt5RLMLj0eYwl0gUm4_98-FQfxsyNNKD75-Ylz1F5dST-GIppJsKrMe-oV57C7Ih_Duyt2X1rgkVpEhwrkAn8KZu5VtYQeH-NYYvlnncfrWJa-k6YNcTYOYg1Jp9YosSJ5Ez3dLHyGl0A3uAFY1pUUIUnCW5w08cANZl9rgg'
+                },
+                metadata: {
+                    filename: fileBlob.name,
+                    filetype: fileBlob.type,
+                },
+                // Callback for errors which cannot be fixed using retries
+                onError: function (error) {
+                    console.log('Failed because: ' + error)
+                },
+                // Callback for reporting upload progress
+                onProgress: function (bytesUploaded, bytesTotal) {
+                    const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2)
+                    console.log(bytesUploaded, bytesTotal, percentage + '%')
+                },
+                // Callback for once the upload is completed
+                onSuccess: function () {
+                    console.log('Download %s from %s', upload.file.name, upload.url)
+                },
+            })
+
+            upload.findPreviousUploads().then(function (previousUploads) {
+                // Found previous uploads so we select the first one.
+                if (previousUploads.length) {
+                    upload.resumeFromPreviousUpload(previousUploads[0])
+                }
+
+                // Start the upload
+                upload.start()
+            })
+        }
+
+        // Button callback
+        async function onButtonClicked() {
+            let files = await selectFile("image/*", true);
+            contentElement.innerHTML = files.map(file => `<img src="${URL.createObjectURL(file)}" style="width: 100px; height: 100px;">`).join('');
+            const singleFile = files[0]
+            sendTus(singleFile)
+        }
+
+        function selectFile(contentType, multiple) {
+            return new Promise(resolve => {
+                let input = document.createElement('input');
+                input.type = 'file';
+                input.multiple = multiple;
+                input.accept = contentType;
+
+                input.onchange = _ => {
+                    let files = Array.from(input.files);
+                    if (multiple)
+                        resolve(files);
+                    else
+                        resolve(files[0]);
+                };
+
+                input.click();
+            });
+        }
+
+    </script>
+</body>
+
+</html>
